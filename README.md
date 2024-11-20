@@ -106,21 +106,6 @@ Frequent requests are optimized with caching to improve performance.
 
 ---
 
-## 🛠 Development
-
-### Clone the Repository
-```bash
-git clone https://github.com/The-Swarm-Corporation/fluidapi.git
-cd fluidapi
-```
-
-### Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
----
-
 ## 💡 How It Works
 
 FluidAPI leverages the **Swarms Framework** to:
