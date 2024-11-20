@@ -58,26 +58,8 @@ FluidAPI will:
 
 ---
 
-## ✨ Examples
-
-### Fetch Data
-```python
-response = api_agent.run("Get a list of cat facts from https://catfact.ninja/fact")
-print(response)
-```
-
-### Post Data
-```python
-response = api_agent.run("Send a POST request to https://api.example.com/users with name='John Doe' and email='john.doe@example.com'")
-print(response)
-```
-
-### Authentication
-FluidAPI automatically handles token management. For APIs requiring authentication, simply include it in your description:
-```python
-response = api_agent.run("Retrieve my GitHub repositories from https://api.github.com/user/repos using my GitHub token")
-print(response)
-```
+### Example
+See the [example.py](example.py) file for more examples.
 
 ---
 
@@ -103,6 +85,21 @@ FluidAPI includes built-in retry logic to handle transient failures automaticall
 
 ### Caching
 Frequent requests are optimized with caching to improve performance.
+
+---
+
+## 🛠 Development
+
+### Clone the Repository
+```bash
+git clone https://github.com/The-Swarm-Corporation/fluidapi.git
+cd fluidapi
+```
+
+### Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
