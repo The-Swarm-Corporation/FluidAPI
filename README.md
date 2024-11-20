@@ -132,11 +132,12 @@ Learn more about the Swarms Framework [here](https://github.com/kyegomez/swarms)
 
 ---
 
-## 📖 Documentation
+# Todo
+- [ ] Add documentation
+- [ ] Add tests
+- [ ] Add examples
 
-Detailed documentation is available [here](https://github.com/The-Swarm-Corporation/fluidapi/wiki).
-
----
+----
 
 ## 🤝 Contributing
 
