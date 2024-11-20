@@ -1,67 +1,159 @@
-[![Multi-Modality](agorabanner.png)](https://discord.com/servers/agora-999382051935506503)
-
-# Python Package Template
+# FluidAPI: Natural Language API Requests
 
 [![Join our Discord](https://img.shields.io/badge/Discord-Join%20our%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/agora-999382051935506503) [![Subscribe on YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@kyegomez3242) [![Connect on LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/kye-g-38759a207/) [![Follow on X.com](https://img.shields.io/badge/X.com-Follow-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/kyegomezb)
 
-A easy, reliable, fluid template for python packages complete with docs, testing suites, readme's, github workflows, linting and much much more
+Welcome to **FluidAPI**, a revolutionary framework that allows you to interact with APIs using **natural language**. No more JSON, headers, or complex formats—simply describe your request in plain English, and FluidAPI will do the rest.
 
+Powered by the **Swarms Framework** and created by [Kye Gomez](https://github.com/kyegomez), FluidAPI redefines how developers interact with APIs.
 
-## Installation
+---
 
-You can install the package using pip
+## 🌟 Features
+
+- **Natural Language API Requests**: Just describe your task, and FluidAPI generates and executes the request for you.
+- **Powered by AI Agents**: Built on the robust [Swarms Framework](https://github.com/kyegomez/swarms), enabling dynamic and intelligent API handling.
+- **Effortless Integration**: Replace complex API workflows with simple, human-friendly commands.
+- **Retry and Reliability**: Automatic retries and error handling for seamless performance.
+- **Dynamic Authentication**: Handles token management and injects them automatically.
+
+---
+
+## 🚀 Installation
+
+Install the `fluid-api` package via pip:
 
 ```bash
-pip install -e .
+pip install fluid-api
 ```
 
-# Usage
+---
+
+## 🔧 Getting Started
+
+### 1. Import and Initialize FluidAPI
 ```python
-print("hello world")
+from fluid_api import FluidAPI
+
+# Initialize the agent
+api_agent = FluidAPI(api_key="your-openai-api-key")
+```
+
+### 2. Make a Natural Language Request
+Simply describe your request in natural language:
+
+```python
+response = api_agent.run("Fetch the latest weather data for New York City from https://api.weather.com")
+print(response)
+```
+
+FluidAPI will:
+1. Interpret your request.
+2. Generate and execute the appropriate API call.
+3. Return the API's response.
+
+---
+
+## ✨ Examples
+
+### Fetch Data
+```python
+response = api_agent.run("Get a list of cat facts from https://catfact.ninja/fact")
+print(response)
+```
+
+### Post Data
+```python
+response = api_agent.run("Send a POST request to https://api.example.com/users with name='John Doe' and email='john.doe@example.com'")
+print(response)
+```
+
+### Authentication
+FluidAPI automatically handles token management. For APIs requiring authentication, simply include it in your description:
+```python
+response = api_agent.run("Retrieve my GitHub repositories from https://api.github.com/user/repos using my GitHub token")
+print(response)
+```
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables
+FluidAPI uses environment variables for sensitive data:
+- `OPENAI_API_KEY`: Your OpenAI API key.
+
+Set these variables in your `.env` file:
+```env
+OPENAI_API_KEY=your-openai-api-key
+WORKSPACE_DIR="agent_workspace"
 
 ```
 
+---
 
+## 📦 Advanced Features
 
-### Code Quality 🧹
+### Retry Logic
+FluidAPI includes built-in retry logic to handle transient failures automatically. You can configure retry settings directly in the agent.
 
-- `make style` to format the code
-- `make check_code_quality` to check code quality (PEP8 basically)
-- `black .`
-- `ruff . --fix`
+### Caching
+Frequent requests are optimized with caching to improve performance.
 
-### Tests 🧪
+---
 
-[`pytests`](https://docs.pytest.org/en/7.1.x/) is used to run our tests.
+## 🛠 Development
 
-### Publish on PyPi 🚀
-
-**Important**: Before publishing, edit `__version__` in [src/__init__](/src/__init__.py) to match the wanted new version.
-
-```
-poetry build
-poetry publish
+### Clone the Repository
+```bash
+git clone https://github.com/The-Swarm-Corporation/fluidapi.git
+cd fluidapi
 ```
 
-### CI/CD 🤖
+### Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
-We use [GitHub actions](https://github.com/features/actions) to automatically run tests and check code quality when a new PR is done on `main`.
+---
 
-On any pull request, we will check the code quality and tests.
+## 💡 How It Works
 
-When a new release is created, we will try to push the new code to PyPi. We use [`twine`](https://twine.readthedocs.io/en/stable/) to make our life easier. 
+FluidAPI leverages the **Swarms Framework** to:
+1. Parse natural language instructions.
+2. Dynamically construct API requests.
+3. Execute requests and handle responses intelligently.
 
-The **correct steps** to create a new realease are the following:
-- edit `__version__` in [src/__init__](/src/__init__.py) to match the wanted new version.
-- create a new [`tag`](https://git-scm.com/docs/git-tag) with the release name, e.g. `git tag v0.0.1 && git push origin v0.0.1` or from the GitHub UI.
-- create a new release from GitHub UI
+Learn more about the Swarms Framework [here](https://github.com/kyegomez/swarms).
 
-The CI will run when you create the new release.
+---
 
-# Docs
-We use MK docs. This repo comes with the zeta docs. All the docs configurations are already here along with the readthedocs configs.
+## 📖 Documentation
 
+Detailed documentation is available [here](https://github.com/The-Swarm-Corporation/fluidapi/wiki).
 
+---
 
-# License
-MIT
+## 🤝 Contributing
+
+We welcome contributions! To get started:
+1. Fork the repository.
+2. Create a new branch.
+3. Submit a pull request.
+
+---
+
+## 📝 License
+
+FluidAPI is licensed under the MIT License. See the [LICENSE](https://github.com/The-Swarm-Corporation/fluidapi/blob/main/LICENSE) file for details.
+
+---
+
+## 🌍 Connect with Us
+
+- **Author**: [Kye Gomez](https://github.com/kyegomez)
+- **Project**: [The-Swarm-Corporation/FluidAPI](https://github.com/The-Swarm-Corporation/fluidapi)
+- **Pip Package**: [fluid-api](https://pypi.org/project/fluid-api/)
+
+---
+
+**Transform the way you interact with APIs. With FluidAPI, it's as simple as saying what you want.**
