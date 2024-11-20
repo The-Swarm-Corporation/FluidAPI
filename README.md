@@ -20,10 +20,10 @@ Powered by the **Swarms Framework** and created by [Kye Gomez](https://github.co
 
 ## 🚀 Installation
 
-Install the `fluid-api` package via pip:
+Install the `fluid-api-agent` package via pip:
 
 ```bash
-pip install fluid-api
+pip install fluid-api-agent
 ```
 
 ---
@@ -32,14 +32,14 @@ pip install fluid-api
 
 ### 1. Import and Initialize FluidAPI
 ```python
-from fluid_api.main import fluid_api_request, batch_fluid_api_request
+from fluid_api_agent.main import fluid_api_request, batch_fluid_api_request
 ```
 
 ### 2. Make a Natural Language Request
 Simply describe your request in natural language:
 
 ```python
-from fluid_api.main import fluid_api_request, batch_fluid_api_request
+from fluid_api_agent.main import fluid_api_request, batch_fluid_api_request
 
 print(fluid_api_request("Generate an API request to get a random cat fact from https://catfact.ninja/fact"))
 

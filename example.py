@@ -1,4 +1,7 @@
-from fluidapi.main import fluid_api_request, batch_fluid_api_request
+from fluid_api_agent.main import (
+    fluid_api_request,
+    batch_fluid_api_request,
+)
 
 print(
     fluid_api_request(
