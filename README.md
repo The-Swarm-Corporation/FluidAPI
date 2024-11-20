@@ -32,18 +32,23 @@ pip install fluid-api
 
 ### 1. Import and Initialize FluidAPI
 ```python
-from fluid_api import FluidAPI
-
-# Initialize the agent
-api_agent = FluidAPI(api_key="your-openai-api-key")
+from fluid_api.main import fluid_api_request, batch_fluid_api_request
 ```
 
 ### 2. Make a Natural Language Request
 Simply describe your request in natural language:
 
 ```python
-response = api_agent.run("Fetch the latest weather data for New York City from https://api.weather.com")
-print(response)
+from fluid_api.main import fluid_api_request, batch_fluid_api_request
+
+print(fluid_api_request("Generate an API request to get a random cat fact from https://catfact.ninja/fact"))
+
+print(batch_fluid_api_request([
+    "Generate an API request to get a random cat fact from https://catfact.ninja/fact",
+    "Generate an API request to get a random dog fact from https://dogapi.dog/api/v2/facts", 
+    "Generate an API request to get a random joke from https://official-joke-api.appspot.com/random_joke"
+]))
+
 ```
 
 FluidAPI will:
