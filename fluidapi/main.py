@@ -240,72 +240,83 @@ async def process_task_with_agent(task: str) -> None:
         logger.error(f"An error occurred: {e}")
 
 
-
 def fluid_api_request(task: str) -> None:
     """
     Asynchronously processes a single API request task.
-    
+
     Args:
         task (str): The task description to be processed by the agent.
-        
+
     Returns:
         None
-        
+
     Raises:
         Exception: If any error occurs during task processing
     """
     try:
         logger.info(f"Processing async API request for task: {task}")
         asyncio.run(process_task_with_agent(task))
-        logger.success(f"Successfully completed API request for task: {task}")
+        logger.success(
+            f"Successfully completed API request for task: {task}"
+        )
     except Exception as e:
-        logger.error(f"Failed to process API request for task: {task}. Error: {e}")
+        logger.error(
+            f"Failed to process API request for task: {task}. Error: {e}"
+        )
         raise
 
 
 def fluid_api_request_sync(task: str) -> None:
     """
     Synchronously processes a single API request task.
-    
+
     Args:
         task (str): The task description to be processed by the agent.
-        
+
     Returns:
         None
-        
+
     Raises:
         Exception: If any error occurs during task processing
     """
     try:
         logger.info(f"Processing sync API request for task: {task}")
         process_task_with_agent(task)
-        logger.success(f"Successfully completed sync API request for task: {task}")
+        logger.success(
+            f"Successfully completed sync API request for task: {task}"
+        )
     except Exception as e:
-        logger.error(f"Failed to process sync API request for task: {task}. Error: {e}")
+        logger.error(
+            f"Failed to process sync API request for task: {task}. Error: {e}"
+        )
         raise
 
 
 def batch_fluid_api_request(tasks: List[str]) -> None:
     """
     Processes multiple API request tasks sequentially.
-    
+
     Args:
         tasks (List[str]): List of task descriptions to be processed.
-        
+
     Returns:
         None
-        
+
     Raises:
         Exception: If any error occurs during batch processing
     """
     try:
-        logger.info(f"Starting batch processing of {len(tasks)} tasks")
+        logger.info(
+            f"Starting batch processing of {len(tasks)} tasks"
+        )
         for i, task in enumerate(tasks, 1):
             try:
                 logger.info(f"Processing task {i}/{len(tasks)}")
                 fluid_api_request(task)
             except Exception as e:
-                logger.error(f"Failed to process task {i}/{len(tasks)}: {e}")
+                logger.error(
+                    f"Failed to process task {i}/{len(tasks)}: {e}"
+                )
                 continue
         logger.success("Completed batch processing")
     except Exception as e:

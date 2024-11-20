@@ -3,14 +3,14 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "fluid-api"
+name = "fluidapi"
 version = "0.0.1"
 description = "Fluid API"
 license = "MIT"
 authors = ["Kye Gomez <kye@apac.ai>"]
 homepage = "https://github.com/The-Swarm-Corporation/FluidAPI"
 documentation = "https://github.com/The-Swarm-Corporation/FluidAPI"  # Add this if you have documentation.
-readme = "README.md"  # Assuming you have a README.md
+readme = "README.md"  
 repository = "https://github.com/The-Swarm-Corporation/FluidAPI"
 keywords = ["artificial intelligence", "deep learning", "optimizers", "Prompt Engineering"]
 classifiers = [
@@ -26,6 +26,11 @@ python = "^3.10"
 swarms = "*"
 loguru = "*"
 swarm-models = "*"
+asyncio = "*"
+aiohttp = "*"
+tenacity = "*"
+
+
 
 
 
