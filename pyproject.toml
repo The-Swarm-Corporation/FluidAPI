@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "fluid-api-agent"
-version = "0.0.1"
+version = "0.0.3"
 description = "Fluid API"
 license = "MIT"
 authors = ["Kye Gomez <kye@apac.ai>"]
@@ -29,7 +29,7 @@ swarm-models = "*"
 asyncio = "*"
 aiohttp = "*"
 tenacity = "*"
-
+pydantic = "*"
 
 
 
