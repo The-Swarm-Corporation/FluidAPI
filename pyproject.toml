@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "fluid-api-agent"
-version = "0.0.5"
+version = "0.3.0"
 description = "Fluid API"
 license = "MIT"
 authors = ["Kye Gomez <kye@swarms.world>"]
