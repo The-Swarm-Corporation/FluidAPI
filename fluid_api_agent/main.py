@@ -316,7 +316,8 @@ class FluidAPI:
 
             # Parse and validate the agent's output
             api_request = validate_agent_output(
-                parse_agent_response(response, self.verbose), self.verbose
+                parse_agent_response(response, self.verbose),
+                self.verbose,
             )
 
             # Execute the API call
@@ -413,31 +414,77 @@ class FluidAPI:
             raise
 
 
-def fluid_api_request(task: str, model_name: str = "gpt-4.1", *args, **kwargs):
-    agent = FluidAPI(model_name=model_name, *args, **kwargs)
-    return agent.fluid_api_request(task)
-    
+def fluid_api_request(
+    task: str,
+    model_name: str = "gpt-4.1",
+    documentation: str = None,
+    return_raw: bool = False,
+    verbose: bool = False,
+    *args,
+    **kwargs,
+) -> str:
+    """
+    Generate and execute an API request from a natural language task description.
+
+    This function uses the FluidAPI agent to interpret a natural language
+    instruction and generate a structured API request, then executes it and
+    returns the response.
+
+    Args:
+        task (str): The natural language description of the API task to perform.
+        model_name (str, optional): The LLM model to use for the agent.
+            Defaults to "gpt-4.1".
+        documentation (str, optional): Optional API documentation to help the agent
+            understand the API's structure and requirements.
+        return_raw (bool, optional): If True, return the raw response from the API.
+            Defaults to False.
+        verbose (bool, optional): If True, enable verbose logging. Defaults to False.
+        *args: Additional positional arguments passed to the FluidAPI agent.
+        **kwargs: Additional keyword arguments passed to the FluidAPI agent.
+
+    Returns:
+        str: A JSON-formatted string representing the API response, including
+            the request, response, and metadata.
+
+    Raises:
+        Exception: If any error occurs during task processing.
+    """
+    agent = FluidAPI(
+        model_name=model_name,
+        documentation=documentation,
+        return_raw=return_raw,
+        verbose=verbose,
+        *args,
+        **kwargs,
+    )
+    output = agent.fluid_api_request(task)
+    return output.model_dump_json(indent=4)
+
 
 def batch_fluid_api_request(
     tasks: List[str],
     documentation: str = None,
     return_raw: bool = False,
     verbose: bool = False,
-) -> List[APIResponseSchema]:
+) -> str:
     """
-    Processes multiple API request tasks sequentially.
+    Process multiple natural language API request tasks sequentially.
+
+    This function takes a list of natural language task descriptions, generates
+    and executes API requests for each, and returns their responses.
 
     Args:
-        tasks (List[str]): List of task descriptions to be processed.
-        documentation (str): Optional API documentation
-        return_raw (bool): Whether to return responses as raw strings
-        verbose (bool): Whether to enable verbose logging
+        tasks (List[str]): List of natural language API task descriptions.
+        documentation (str, optional): API documentation to assist the agent for all tasks.
+        return_raw (bool, optional): If True, return raw responses as strings.
+            Defaults to False.
+        verbose (bool, optional): If True, enable verbose logging. Defaults to False.
 
     Returns:
-        List[APIResponseSchema]: List of response objects containing requests, responses and metadata
+        List[str]: List of JSON-formatted strings representing each API response.
 
     Raises:
-        Exception: If any error occurs during batch processing
+        Exception: If any error occurs during batch processing.
     """
     try:
         if verbose:
@@ -461,7 +508,7 @@ def batch_fluid_api_request(
                 continue
         if verbose:
             logger.success("Completed batch processing")
-        return responses
+        return "\n\n".join(responses)
     except Exception as e:
         if verbose:
             logger.error(f"Fatal error in batch processing: {e}")

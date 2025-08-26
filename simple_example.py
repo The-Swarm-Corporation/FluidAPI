@@ -1,4 +1,3 @@
-import os
 from fluid_api_agent.main import (
     fluid_api_request,
 )
