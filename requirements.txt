@@ -1,6 +1,5 @@
 swarms
 loguru
-swarm-models
 asyncio
 aiohttp
 tenacity

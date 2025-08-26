@@ -4,10 +4,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "fluid-api-agent"
-version = "0.0.3"
+version = "0.0.4"
 description = "Fluid API"
 license = "MIT"
-authors = ["Kye Gomez <kye@apac.ai>"]
+authors = ["Kye Gomez <kye@swarms.world>"]
 homepage = "https://github.com/The-Swarm-Corporation/FluidAPI"
 documentation = "https://github.com/The-Swarm-Corporation/FluidAPI"  # Add this if you have documentation.
 readme = "README.md"  
@@ -25,7 +25,6 @@ classifiers = [
 python = "^3.10"
 swarms = "*"
 loguru = "*"
-swarm-models = "*"
 asyncio = "*"
 aiohttp = "*"
 tenacity = "*"

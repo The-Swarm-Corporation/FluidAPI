@@ -1,19 +1,30 @@
-# TODO: Add the ability to upload documentation to the agent on the api endpoint
-# TODO: Add the ability for api key injection through .ENVs or pass it into the prompt
-#
-
-import os
-import json
-from loguru import logger
-from swarms import Agent
-from swarm_models import OpenAIChat
-from dotenv import load_dotenv
-from tenacity import retry, stop_after_attempt, wait_exponential
-import aiohttp
 import asyncio
-from pydantic import BaseModel, ValidationError
+import json
 from pathlib import Path
-from typing import List, Union, Dict, Any, Optional
+from typing import Any, Dict, List, Optional, Union
+
+import aiohttp
+from loguru import logger
+from pydantic import BaseModel, ValidationError
+from swarms import Agent
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+
+# Define API request schema using Pydantic
+class APIRequestSchema(BaseModel):
+    method: str
+    url: str
+    headers: dict
+    body: dict
+
+
+class APIResponseSchema(BaseModel):
+    request: APIRequestSchema
+    response: Union[Dict[str, Any], str]
+    status_code: int
+    elapsed_time: float
+    metadata: Dict[str, Any]
+
 
 
 # Add these new constants after the existing ones
@@ -74,18 +85,6 @@ def load_documentation(
     return "\n\n".join(combined_docs)
 
 
-# Load environment variables
-load_dotenv()
-
-# Get the OpenAI API key from the environment variable
-api_key = os.getenv("OPENAI_API_KEY")
-
-# Validate API Key
-if not api_key:
-    raise ValueError(
-        "OpenAI API key is not set. Please check your .env file."
-    )
-
 # More extensive and instructive system prompt
 API_REQUEST_SYS_PROMPT = """
 You are an intelligent API agent. Your sole task is to interpret user instructions and generate a JSON object that defines an API request. 
@@ -128,15 +127,12 @@ Example Output:
 Your response must always be a valid JSON object.
 """
 
-# Initialize the LLM model
-model = OpenAIChat(
-    openai_api_key=api_key, model_name="gpt-4o-mini", temperature=0.1
-)
-
 
 # Modify the Agent initialization to accept documentation
 def initialize_agent(
-    documentation: Optional[str] = None, verbose: bool = False
+    model_name: str = "gpt-4.1",
+    documentation: Optional[str] = None,
+    verbose: bool = False,
 ) -> Agent:
     """
     Initialize the API Request Agent with optional documentation.
@@ -158,30 +154,13 @@ def initialize_agent(
     return Agent(
         agent_name="API-Request-Agent",
         system_prompt=system_prompt,
-        llm=model,
+        model_name=model_name,
         max_loops=1,
-        saved_state_path="api_request_agent.json",
         context_length=200000,
         return_step_meta=False,
         output_type="string",
         streaming_on=verbose,  # Enable streaming for verbose mode
     )
-
-
-# Define API request schema using Pydantic
-class APIRequestSchema(BaseModel):
-    method: str
-    url: str
-    headers: dict
-    body: dict
-
-
-class APIResponseSchema(BaseModel):
-    request: APIRequestSchema
-    response: Union[Dict[str, Any], str]
-    status_code: int
-    elapsed_time: float
-    metadata: Dict[str, Any]
 
 
 def validate_agent_output(
