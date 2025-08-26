@@ -1,5 +1,6 @@
 import asyncio
 import json
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -26,63 +27,9 @@ class APIResponseSchema(BaseModel):
     metadata: Dict[str, Any]
 
 
-
 # Add these new constants after the existing ones
 SUPPORTED_DOC_EXTENSIONS = {".txt", ".md", ".mdx"}
 VERBOSE = False  # Default verbose setting
-
-
-# Add this function to handle documentation loading
-def load_documentation(
-    doc_paths: Union[str, List[str]], verbose: bool = False
-) -> str:
-    """
-    Loads documentation from one or more files and combines them into a single string.
-
-    Args:
-        doc_paths: Single path or list of paths to documentation files
-        verbose: Whether to enable verbose logging
-
-    Returns:
-        str: Combined documentation text
-    """
-    if isinstance(doc_paths, str):
-        doc_paths = [doc_paths]
-
-    combined_docs = []
-
-    for path in doc_paths:
-        file_path = Path(path)
-        if verbose:
-            logger.info(f"Loading documentation from {file_path}")
-
-        if not file_path.exists():
-            if verbose:
-                logger.error(
-                    f"Documentation file not found: {file_path}"
-                )
-            continue
-
-        if file_path.suffix.lower() not in SUPPORTED_DOC_EXTENSIONS:
-            if verbose:
-                logger.warning(
-                    f"Unsupported file type {file_path.suffix} for {file_path}"
-                )
-            continue
-
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-                combined_docs.append(content)
-                if verbose:
-                    logger.info(
-                        f"Successfully loaded {len(content)} characters from {file_path}"
-                    )
-        except Exception as e:
-            if verbose:
-                logger.error(f"Error reading {file_path}: {e}")
-
-    return "\n\n".join(combined_docs)
 
 
 # More extensive and instructive system prompt
@@ -126,41 +73,6 @@ Example Output:
 }
 Your response must always be a valid JSON object.
 """
-
-
-# Modify the Agent initialization to accept documentation
-def initialize_agent(
-    model_name: str = "gpt-4.1",
-    documentation: Optional[str] = None,
-    verbose: bool = False,
-) -> Agent:
-    """
-    Initialize the API Request Agent with optional documentation.
-
-    Args:
-        documentation: Optional API documentation to inject
-        verbose: Whether to enable verbose logging
-
-    Returns:
-        Agent: Configured API request agent
-    """
-    system_prompt = API_REQUEST_SYS_PROMPT
-    if documentation:
-        system_prompt += f"\n\nAPI Documentation:\n{documentation}"
-
-    if verbose:
-        logger.info("Initializing agent with custom documentation")
-
-    return Agent(
-        agent_name="API-Request-Agent",
-        system_prompt=system_prompt,
-        model_name=model_name,
-        max_loops=1,
-        context_length=200000,
-        return_step_meta=False,
-        output_type="string",
-        streaming_on=verbose,  # Enable streaming for verbose mode
-    )
 
 
 def validate_agent_output(
@@ -270,138 +182,241 @@ def parse_agent_response(
         raise
 
 
-async def process_task_with_agent(
-    task: str,
-    documentation: str = None,
-    return_raw: bool = False,
-    verbose: bool = False,
-) -> APIResponseSchema:
-    """
-    Prompts the agent, validates the response, and executes the API request asynchronously.
+class FluidAPI:
+    def __init__(
+        self,
+        model_name: str = "gpt-4.1",
+        documentation: Optional[str] = None,
+        verbose: bool = False,
+        output_type: str = "final",
+        return_raw: bool = False,
+    ):
+        self.model_name = model_name
+        self.documentation = documentation
+        self.verbose = verbose
+        self.output_type = output_type
+        self.return_raw = return_raw
 
-    Args:
-        task (str): The user's task description.
-        documentation (str): Optional API documentation
-        return_raw (bool): Whether to return response as raw string
-        verbose (bool): Whether to enable verbose logging
+    # Add this function to handle documentation loading
+    def load_documentation(
+        self, doc_paths: Union[str, List[str]], verbose: bool = False
+    ) -> str:
+        """
+        Loads documentation from one or more files and combines them into a single string.
 
-    Returns:
-        APIResponseSchema: Response object containing request, response and metadata
-    """
-    try:
-        if verbose:
-            logger.info(f"Task received: {task}")
+        Args:
+            doc_paths: Single path or list of paths to documentation files
+            verbose: Whether to enable verbose logging
 
-        # Prompt the agent
-        agent = initialize_agent(documentation, verbose=verbose)
-        response = agent.run(task)
-        if verbose:
-            logger.info(f"Agent response: {response}")
+        Returns:
+            str: Combined documentation text
+        """
+        if isinstance(doc_paths, str):
+            doc_paths = [doc_paths]
 
-        # Parse and validate the agent's output
-        api_request = validate_agent_output(
-            parse_agent_response(response, verbose), verbose
-        )
+        combined_docs = []
 
-        # Execute the API call
-        api_response = await execute_async_api_call(
-            api_request, return_raw, verbose
-        )
-        if verbose:
-            logger.info(f"API response: {api_response}")
-        return api_response
+        for path in doc_paths:
+            file_path = Path(path)
+            if verbose:
+                logger.info(f"Loading documentation from {file_path}")
 
-    except Exception as e:
-        if verbose:
-            logger.error(f"An error occurred: {e}")
-        raise
+            if not file_path.exists():
+                if verbose:
+                    logger.error(
+                        f"Documentation file not found: {file_path}"
+                    )
+                continue
 
+            if (
+                file_path.suffix.lower()
+                not in SUPPORTED_DOC_EXTENSIONS
+            ):
+                if verbose:
+                    logger.warning(
+                        f"Unsupported file type {file_path.suffix} for {file_path}"
+                    )
+                continue
 
-def fluid_api_request(
-    task: str,
-    documentation: str = None,
-    return_raw: bool = False,
-    verbose: bool = False,
-) -> APIResponseSchema:
-    """
-    Asynchronously processes a single API request task.
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    combined_docs.append(content)
+                    if verbose:
+                        logger.info(
+                            f"Successfully loaded {len(content)} characters from {file_path}"
+                        )
+            except Exception as e:
+                if verbose:
+                    logger.error(f"Error reading {file_path}: {e}")
 
-    Args:
-        task (str): The task description to be processed by the agent.
-        documentation (str): Optional API documentation
-        return_raw (bool): Whether to return response as raw string
-        verbose (bool): Whether to enable verbose logging
+        return "\n\n".join(combined_docs)
 
-    Returns:
-        APIResponseSchema: Response object containing request, response and metadata
+    @lru_cache(maxsize=1)
+    def initialize_agent(
+        self,
+    ) -> Agent:
+        """
+        Initialize the API Request Agent with optional documentation.
 
-    Raises:
-        Exception: If any error occurs during task processing
-    """
-    try:
-        if verbose:
+        Args:
+            documentation: Optional API documentation to inject
+            verbose: Whether to enable verbose logging
+
+        Returns:
+            Agent: Configured API request agent
+        """
+        system_prompt = API_REQUEST_SYS_PROMPT
+        if self.documentation:
+            system_prompt += (
+                f"\n\nAPI Documentation:\n{self.documentation}"
+            )
+
+        if self.verbose:
             logger.info(
-                f"Processing async API request for task: {task}"
+                "Initializing agent with custom documentation"
             )
-        response = asyncio.run(
-            process_task_with_agent(
-                task, documentation, return_raw, verbose
-            )
+
+        return Agent(
+            agent_name="API-Request-Agent",
+            system_prompt=system_prompt,
+            agent_description="You are an intelligent API agent. Your sole task is to interpret user instructions and generate a JSON object that defines an API request. The JSON must strictly follow this structure: {method: HTTP_METHOD, url: API_ENDPOINT_URL, headers: {Content-Type: application/json, Authorization: Bearer <token>, Additional-Headers: value}, body: {key1: value1, key2: value2}}",
+            model_name=self.model_name,
+            max_loops=1,
+            context_length=200000,
+            return_step_meta=False,
+            output_type=self.output_type,
         )
-        if verbose:
-            logger.success(
-                f"Successfully completed API request for task: {task}"
+
+    async def process_task_with_agent(
+        self,
+        task: str,
+    ) -> APIResponseSchema:
+        """
+        Prompts the agent, validates the response, and executes the API request asynchronously.
+
+        Args:
+            task (str): The user's task description.
+            documentation (str): Optional API documentation
+            return_raw (bool): Whether to return response as raw string
+            verbose (bool): Whether to enable verbose logging
+
+        Returns:
+            APIResponseSchema: Response object containing request, response and metadata
+        """
+        try:
+            if self.verbose:
+                logger.info(f"Task received: {task}")
+
+            # Prompt the agent
+            agent = self.initialize_agent()
+            response = agent.run(task)
+            if self.verbose:
+                logger.info(f"Agent response: {response}")
+
+            # Parse and validate the agent's output
+            api_request = validate_agent_output(
+                parse_agent_response(response, self.verbose), self.verbose
             )
-        return response
-    except Exception as e:
-        if verbose:
-            logger.error(
-                f"Failed to process API request for task: {task}. Error: {e}"
+
+            # Execute the API call
+            api_response = await execute_async_api_call(
+                api_request, self.return_raw, self.verbose
             )
-        raise
+            if self.verbose:
+                logger.info(f"API response: {api_response}")
+            return api_response
 
+        except Exception as e:
+            if self.verbose:
+                logger.error(f"An error occurred: {e}")
+            raise
 
-def fluid_api_request_sync(
-    task: str,
-    documentation: str = None,
-    return_raw: bool = False,
-    verbose: bool = False,
-) -> APIResponseSchema:
-    """
-    Synchronously processes a single API request task.
+    def fluid_api_request(
+        self,
+        task: str,
+    ) -> APIResponseSchema:
+        """
+        Asynchronously processes a single API request task.
 
-    Args:
-        task (str): The task description to be processed by the agent.
-        documentation (str): Optional API documentation
-        return_raw (bool): Whether to return response as raw string
-        verbose (bool): Whether to enable verbose logging
+        Args:
+            task (str): The task description to be processed by the agent.
+            documentation (str): Optional API documentation
+            return_raw (bool): Whether to return response as raw string
+            verbose (bool): Whether to enable verbose logging
 
-    Returns:
-        APIResponseSchema: Response object containing request, response and metadata
+        Returns:
+            APIResponseSchema: Response object containing request, response and metadata
 
-    Raises:
-        Exception: If any error occurs during task processing
-    """
-    try:
-        if verbose:
-            logger.info(
-                f"Processing sync API request for task: {task}"
+        Raises:
+            Exception: If any error occurs during task processing
+        """
+        try:
+            if self.verbose:
+                logger.info(
+                    f"Processing async API request for task: {task}"
+                )
+            response = asyncio.run(
+                self.process_task_with_agent(
+                    task=task,
+                )
             )
-        response = process_task_with_agent(
-            task, documentation, return_raw, verbose
-        )
-        if verbose:
-            logger.success(
-                f"Successfully completed sync API request for task: {task}"
-            )
-        return response
-    except Exception as e:
-        if verbose:
-            logger.error(
-                f"Failed to process sync API request for task: {task}. Error: {e}"
-            )
-        raise
+            if self.verbose:
+                logger.success(
+                    f"Successfully completed API request for task: {task}"
+                )
+            return response
+        except Exception as e:
+            if self.verbose:
+                logger.error(
+                    f"Failed to process API request for task: {task}. Error: {e}"
+                )
+            raise
 
+    def run(
+        self,
+        task: str,
+    ) -> APIResponseSchema:
+        """
+        Synchronously processes a single API request task.
+
+        Args:
+            task (str): The task description to be processed by the agent.
+            documentation (str): Optional API documentation
+            return_raw (bool): Whether to return response as raw string
+            verbose (bool): Whether to enable verbose logging
+
+        Returns:
+            APIResponseSchema: Response object containing request, response and metadata
+
+        Raises:
+            Exception: If any error occurs during task processing
+        """
+        try:
+            if self.verbose:
+                logger.info(
+                    f"Processing sync API request for task: {task}"
+                )
+            response = self.process_task_with_agent(
+                task=task,
+            )
+            if self.verbose:
+                logger.success(
+                    f"Successfully completed sync API request for task: {task}"
+                )
+            return response
+        except Exception as e:
+            if self.verbose:
+                logger.error(
+                    f"Failed to process sync API request for task: {task}. Error: {e}"
+                )
+            raise
+
+
+def fluid_api_request(task: str, model_name: str = "gpt-4.1", *args, **kwargs):
+    agent = FluidAPI(model_name=model_name, *args, **kwargs)
+    return agent.fluid_api_request(task)
+    
 
 def batch_fluid_api_request(
     tasks: List[str],

@@ -1,6 +1,10 @@
+import os
 from fluid_api_agent.main import (
     fluid_api_request,
 )
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Example 1: Basic API Request
 basic_request = fluid_api_request(
